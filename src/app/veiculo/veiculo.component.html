@@ -1,0 +1,192 @@
+<div class="ui-g">
+    <p-toast></p-toast>
+    <p-confirmDialog #cd [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <h3>Confirmação</h3>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button type="button" pButton icon="pi pi-times" label="Não" (click)="cd.reject()"></button>
+            <button type="button" pButton icon="pi pi-check" label="Sim" (click)="cd.accept()"></button>
+        </ng-template>
+    </p-confirmDialog>
+
+    <p-panel header="Veiculos" [style]="{margin: '0 auto'}">
+
+        <div style="margin-bottom: 1%;">
+            <p-menubar [model]="items"></p-menubar>
+        </div>
+        <p-accordion>
+            <p-accordionTab header="Filtros">
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="kmInicial">Quilometragem Inicial</label>
+                        <p-inputNumber id="kmInicial" [(ngModel)]="kmInicial" suffix=" km"></p-inputNumber>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="kmFinal">Quilometragem Final</label>
+                        <p-inputNumber id="kmFinal" [(ngModel)]="kmFinal" suffix=" km"></p-inputNumber>
+                    </div>
+
+                    <div class="p-field p-col-12 p-mt-auto p-md-1">
+                        <button class="p-button" pButton icon="pi pi-filter" (click)="getKm()" type="button"
+                            label="Filtrar"></button>
+                    </div>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+        <p-table #dt [value]="veiculos" [(selection)]="selectedVeiculos" selectionMode="single" [paginator]="true"
+            [rows]="10" [showCurrentPageReport]="true" [rowsPerPageOptions]="[5,10,15]"
+            [globalFilterFields]="['id','marca.nomeMarca','modelo.nomeModelo','num_placa','ano_fab','descricao','qtd_km','est_conserv', 'caegoria']">
+            <ng-template pTemplate="caption">
+                <div class="p-d-flex">
+                    <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+                        (click)="clear(dt)"></button>
+                    <span class="p-input-icon-left p-ml-auto">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search" />
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="id" style="width: 5%">Id <br>
+                        <p-sortIcon field="id"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="marca.nomeMarca">Marca <br>
+                        <p-sortIcon field="marca.nomeMarca"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="modelo.nomeModelo">Modelo <br>
+                        <p-sortIcon field="modelo.nomeModelo"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="num_placa">Placa <br>
+                        <p-sortIcon field="num_placa"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="ano_fab" style="width: 13%">Ano Fabricação <br>
+                        <p-sortIcon field="ano_fab"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="descricao">Descrição <br>
+                        <p-sortIcon field="descricao"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="qtd_km">Qt.Km <br>
+                        <p-sortIcon field="qtd_km"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="est_conserv" style="width: 12%">Est. de Conservação <br>
+                        <p-sortIcon field="vest_conserv"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="caegoria">Categoria <br>
+                        <p-sortIcon field="caegoria"></p-sortIcon>
+                    </th>
+                    <!--<th *ngFor="let col of columns">{{col.header}}</th>-->
+                    <th>+ Info</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-veiculo>
+                <tr>
+                    <!--<td *ngFor="let col of columns">{{veiculos[col.field]}}</td>-->
+                    <td>
+                        <p-tableCheckbox [value]="veiculo"></p-tableCheckbox>
+                    </td>
+                    <td>{{veiculo.id}}</td>
+                    <td>{{veiculo.marca.nomeMarca}}</td>
+                    <td>{{veiculo.modelo.nomeModelo}}</td>
+                    <td>{{veiculo.num_placa}}</td>
+                    <td>{{veiculo.ano_fab}}</td>
+                    <td>{{veiculo.descricao}}</td>
+                    <td>{{veiculo.qtd_km}}</td>
+                    <td>{{veiculo.est_conserv}}</td>
+                    <td>{{veiculo.caegoria}}</td>
+                    <td>
+                        <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-outlined p-mr-2"
+                            (click)="getOrdTrafego(veiculo)"></button>
+                    </td>
+                    <td>
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-mr-2"
+                            (click)="editVeiculo(veiculo)"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                            (click)="deleteVeiculo(veiculo)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-panel>
+    <p-dialog header="Cadastrar Veiculo" [(visible)]="displaySaveDialog" [style]="{width: '60%'}">
+
+        <div class="p-fluid p-formgrid p-grid">
+            <div class="p-field p-col-12 p-md-6">
+                <label for="marca">Marca</label>
+                <input id="marca" type="text" [(ngModel)]="veiculo.marca.nomeMarca" pInputText>
+            </div>
+            <div class="p-field p-col-12 p-md-6">
+                <label for="modelo">Modelo</label>
+                <input id="modelo" type="text" [(ngModel)]="veiculo.modelo.nomeModelo" pInputText>
+            </div>
+            <div class="p-field p-col-12">
+                <label for="descricao">Descrição</label><br>
+                <textarea id="descricao" type="text" rows="4" [(ngModel)]="veiculo.descricao" pInputTextarea></textarea>
+            </div>
+            <div class="p-field p-col-12 p-md-6">
+                <label for="placa">Placa</label>
+                <input id="placa" type="text" [(ngModel)]="veiculo.num_placa" pInputText>
+            </div>
+            <div class="p-field p-col-12 p-md-6">
+                <label for="ano">Ano de Fabricação</label>
+                <input id="ano" type="text" [(ngModel)]="veiculo.ano_fab" pInputText>
+            </div>
+            <div class="p-field p-col-12 p-md-6">
+                <label for="km">Quilometragem</label>
+                <p-inputNumber id="km" [(ngModel)]="veiculo.qtd_km" suffix=" km"></p-inputNumber>
+            </div>
+            <div class="p-field p-col-12 p-md-3">
+                <label for="categoria">Categoria</label>
+                <p-dropdown inputId="categoria" [options]="categorias" [(ngModel)]="veiculo.caegoria"
+                    placeholder="Select" optionLabel="name" optionValue="value"></p-dropdown>
+            </div>
+            <div class="p-field p-col-12 p-md-3">
+                <label for="estado">Estado de Conservação</label>
+                <p-dropdown inputId="estado" [options]="est_conservs" [(ngModel)]="veiculo.est_conserv"
+                    placeholder="Select" optionLabel="name" optionValue="value"></p-dropdown>
+            </div>
+            <div class="p-field p-col-12 p-md-3">
+                <button class="p-ripple p-button p-component" pButton icon="pi pi-save" (click)="save()" type="button"
+                    label="Salvar"></button>
+            </div>
+        </div>
+
+
+
+    </p-dialog>
+
+    <p-dialog header="Ordens de Trafego" [(visible)]="displayTableDialog" [style]="{width: '60%'}">
+
+        <div class="p-fluid p-formgrid p-grid">
+            <p-table [value]="ordtrafegos">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Id</th>
+                        <th>Origem</th>
+                        <th>Destino</th>
+                        <th>Dt. Viagem</th>
+                        <th>Distancia</th>
+                        <th>status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-ordtrafego>
+                    <tr>
+                        <td>{{ordtrafego.id}}</td>
+                        <td>{{ordtrafego.origem}}</td>
+                        <td>{{ordtrafego.destino}}</td>
+                        <td>{{ordtrafego.dt_viagem}}</td>
+                        <td>{{ordtrafego.distancia}}</td>
+                        <td>{{ordtrafego.status}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </p-dialog>
+</div>

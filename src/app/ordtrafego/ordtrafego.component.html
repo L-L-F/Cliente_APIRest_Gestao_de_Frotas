@@ -1,0 +1,150 @@
+<div class="ui-g">
+    <p-toast></p-toast>
+    <p-confirmDialog #cd [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <h3>Confirmação</h3>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button type="button" pButton icon="pi pi-times" label="Não" (click)="cd.reject()"></button>
+            <button type="button" pButton icon="pi pi-check" label="Sim" (click)="cd.accept()"></button>
+        </ng-template>
+    </p-confirmDialog>
+   
+    <p-panel header="Ordtrafego" [style]="{margin: '0 auto'}">
+        <div style="margin-bottom: 1%;">
+            <p-menubar [model]="items"></p-menubar>
+        </div>
+        <p-accordion>
+            <p-accordionTab header="Filtros">
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="origemf">Origem</label>
+                        <input id="origemf" type="text" [(ngModel)]="origem" pInputText>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <label for="destinof">Destino</label>
+                        <input id="destinof" type="text" [(ngModel)]="destino" pInputText>
+                    </div>
+
+                    <div class="p-field p-col-12 p-mt-auto p-md-1">
+                        <button class="p-button" pButton icon="pi pi-filter" (click)="getTrajeto()"
+                            type="button" label="Filtrar"></button>
+                    </div>
+                </div>
+            </p-accordionTab>
+        </p-accordion>
+        <p-table #dt [value]="ordtrafegos" [(selection)]="selectedOrdtrafego" styleClass="p-datatable-customers p-datatable-gridlines" selectionMode="single" [paginator]="true"
+            [rows]="10" [showCurrentPageReport]="true" [rowsPerPageOptions]="[5,10,15]" [globalFilterFields]="['id','origem','destino','dt_viagem','distancia','status','veiculo.placa','condutor.cpf']">
+            <ng-template pTemplate="caption">
+                <div class="p-d-flex">
+                    <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash" (click)="clear(dt)"></button>
+                    <span class="p-input-icon-left p-ml-auto">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search" />
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="id" style="width: 5%">Id <br>
+                        <p-sortIcon field="id"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="origem">origem <br>
+                        <p-sortIcon field="origem"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="destino">Destino <br>
+                        <p-sortIcon field="destino"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="dt_viagem">Dt. Viagem <br>
+                        <p-sortIcon field="dt_viagem"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="distancia" style="width: 13%">Distancia <br>
+                        <p-sortIcon field="distancia"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="status">Status <br>
+                        <p-sortIcon field="status"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="veiculo.num_placa">Placa Veiculo <br>
+                        <p-sortIcon field="veiculo.num_placa"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="condutor.cpf">CPF Condutor <br>
+                        <p-sortIcon field="condutor.cpf"></p-sortIcon>
+                    </th>
+                    <!--<th *ngFor="let col of columns">{{col.header}}</th>-->
+                    
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ordtrafego>
+                <tr>
+                    <!--<td *ngFor="let col of columns">{{veiculos[col.field]}}</td>-->
+                    <td>
+                        <p-tableCheckbox [value]="ordtrafego"></p-tableCheckbox>
+                    </td>
+                    <td>{{ordtrafego.id}}</td>
+                    <td>{{ordtrafego.origem}}</td>
+                    <td>{{ordtrafego.destino}}</td>
+                    <td>{{ordtrafego.dt_viagem}}</td>
+                    <td>{{ordtrafego.distancia}}</td>
+                    <td>{{ordtrafego.status}}</td>
+                    <td>{{ordtrafego.veiculo.num_placa}}</td>
+                    <td>{{ordtrafego.condutor.cpf}}</td>
+                    <td>
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-mr-2"
+                            (click)="editOrdtrafego(ordtrafego)"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                            (click)="deleteOrdtrafego(ordtrafego)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-panel>
+    <p-dialog header="Cadastrar Ordem de Trafego" [(visible)]="displaySaveDialog" [style]="{width: '60%'}">
+        
+            <div class="p-fluid p-formgrid p-grid" [style]="{height: '100%'}">
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="origem">Origem</label>
+                    <input id="origem" type="text" [(ngModel)]="ordtrafego.origem" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="destino">Destino</label>
+                    <input id="destino" type="text" [(ngModel)]="ordtrafego.destino" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="dt_viagem">Dt. Viagem</label>
+                    <input id="dt_viagem" type="text" [(ngModel)]="ordtrafego.dt_viagem" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="distancia">Distancia</label>
+                    <p-inputNumber id="distancia" [(ngModel)]="ordtrafego.distancia" suffix=" km"></p-inputNumber>
+                </div>
+                <div class="p-field p-col-12 p-md-4">
+                    <label for="status">Status</label>
+                    <p-dropdown inputId="status" [options]="status" [(ngModel)]="ordtrafego.status" appendTo="body"
+                        placeholder="Select" optionLabel="name" optionValue="value"></p-dropdown>
+                </div>
+                <div class="p-field p-col-12 p-md-4">
+                    <label for="listaVeiculos">Veiculo</label>
+                    <p-dropdown inputId="listaVeiculos" [options]="listaVeiculos" [(ngModel)]="ordtrafego.veiculo" appendTo="body"
+                    placeholder="Select" optionLabel="name" optionValue="value"></p-dropdown>
+                </div>
+                <div class="p-field p-col-12 p-md-4">
+                    <label for="listaCondutores">Condutor</label>
+                    <p-dropdown inputId="listaCondutores" [options]="listaCondutores" [(ngModel)]="ordtrafego.condutor" appendTo="body"
+                    placeholder="Select" optionLabel="name" optionValue="value"></p-dropdown>
+                </div>
+                <!--<div class="p-field p-col-12 p-md-4">
+                    <label for="condutor">Id Condutor</label>
+                    <p-inputNumber id="condutor" [(ngModel)]="ordtrafego.condutor.id"></p-inputNumber>
+                </div>-->
+                <div class="p-field p-col-12 p-md-3">
+                    <button class="p-ripple p-button p-component" pButton icon="pi pi-save" (click)="save()" type="button" label="Salvar"></button>
+                </div>
+                
+            </div>
+        
+    </p-dialog>
+</div>

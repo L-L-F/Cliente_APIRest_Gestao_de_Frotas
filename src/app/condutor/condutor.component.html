@@ -1,0 +1,231 @@
+<div class="ui-g">
+    <p-toast></p-toast>
+    <p-confirmDialog #cd [style]="{width: '50vw'}">
+        <ng-template pTemplate="header">
+            <h3>Confirmação</h3>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button type="button" pButton icon="pi pi-times" label="Não" (click)="cd.reject()"></button>
+            <button type="button" pButton icon="pi pi-check" label="Sim" (click)="cd.accept()"></button>
+        </ng-template>
+    </p-confirmDialog>
+
+    <p-panel header="Condutor" [style]="{margin: '0 auto'}">
+        <div style="margin-bottom: 1%;">
+            <p-menubar [model]="items"></p-menubar>
+        </div>
+        <p-table #dt [value]="condutores" [(selection)]="selectedCondutor" selectionMode="single" [paginator]="true"
+            [rows]="10" [showCurrentPageReport]="true" [rowsPerPageOptions]="[5,10,15]" [globalFilterFields]="['id','nome','cpf','dt_nasc','genero','cnh.numCnh','enderco.end']">
+            <ng-template pTemplate="caption">
+                <div class="p-d-flex">
+                    <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash" (click)="clear(dt)"></button>
+                    <span class="p-input-icon-left p-ml-auto">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search" />
+                    </span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="id" style="width: 5%">Id <br>
+                        <p-sortIcon field="id"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="nome">Nome <br>
+                        <p-sortIcon field="nome"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="cpf">CPF <br>
+                        <p-sortIcon field="cpf"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="dt_nasc">Dt. Nascimento <br>
+                        <p-sortIcon field="dt_nasc"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="genero">Genero <br>
+                        <p-sortIcon field="genero"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="cnh.numCnh">CNH <br>
+                        <p-sortIcon field="cnh.numCnh"></p-sortIcon>
+                    </th>
+                    <!--<th *ngFor="let col of columns">{{col.header}}</th>-->
+                    <th>+ Info</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-condutor>
+                <tr>
+                    <!--<td *ngFor="let col of columns">{{veiculos[col.field]}}</td>-->
+                    <td>
+                        <p-tableCheckbox [value]="condutor"></p-tableCheckbox>
+                    </td>
+                    <td>{{condutor.id}}</td>
+                    <td>{{condutor.nome}}</td>
+                    <td>{{condutor.cpf}}</td>
+                    <td>{{condutor.dt_nasc}}</td>
+                    <td>{{condutor.genero}}</td>
+                    <td>{{condutor.cnh.numCnh}}</td>
+                    <td>
+                        <button pButton pRipple icon="pi pi-id-card" class="p-button-rounded p-button-outlined p-mr-2"
+                            (click)="getCnh(condutor)"></button>
+                        <button pButton pRipple icon="pi pi-home" class="p-button-rounded p-button-outlined p-mr-2"
+                            (click)="getEnd(condutor)"></button>
+                        <button pButton pRipple icon="pi pi-file" class="p-button-rounded p-button-outlined p-mr-2"
+                            (click)="getOrdTrafego(condutor)"></button>
+                    </td>
+                    <td>
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-mr-2"
+                            (click)="editCondutor(condutor)"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                            (click)="deleteCondutor(condutor)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-panel>
+    <p-dialog header="Cadastrar Condutor" [(visible)]="displaySaveDialog" [style]="{width: '60%'}">
+        
+            <div class="p-fluid p-formgrid p-grid">
+
+                <div class="p-field p-col-12">
+                    <label for="nome">Nome</label>
+                    <input id="nome" type="text" [(ngModel)]="condutor.nome" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="cpf">CPF</label>
+                    <p-inputMask id="cpf" type="text" mask="999.999.999-99" [(ngModel)]="condutor.cpf"></p-inputMask>
+                </div>
+
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="genero">Genero</label>
+                    <p-dropdown inputId="genero" [options]="genero" [(ngModel)]="condutor.genero" placeholder="Select"
+                        optionLabel="name" optionValue="value"></p-dropdown>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="numCnh">Numero CNH</label>
+                    <p-inputNumber id="numCnh" [(ngModel)]="condutor.cnh.numCnh"></p-inputNumber>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="categoria">Categoria CNH</label>
+                    <input id="categoria" type="text" [(ngModel)]="condutor.cnh.categoria" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="validade">Validade CNH</label>
+                    <input id="validade" type="text" [(ngModel)]="condutor.cnh.validade" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="dt_nasc">Dt. Nascimento</label>
+                    <input id="dt_nasc" type="text" [(ngModel)]="condutor.dt_nasc" pInputText>
+                </div>
+                <div class="p-field p-col-12">
+                    <label for="obs">Observção</label>
+                    <textarea id="obs" type="text" rows="4" [(ngModel)]="condutor.cnh.obs" pInputTextarea></textarea>
+                </div>
+                <div class="p-field p-col-12">
+                    <label for="end">Endereço</label>
+                    <input id="end" type="text" [(ngModel)]="condutor.enderco.end" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="bairro">Bairro</label>
+                    <input id="bairro" type="text" [(ngModel)]="condutor.enderco.bairro" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="cep">CEP</label>
+                    <input id="cep" type="text" [(ngModel)]="condutor.enderco.cep" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="estado">Estado</label>
+                    <input id="estado" type="text" [(ngModel)]="condutor.enderco.estado" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <label for="uf">UF</label>
+                    <input id="uf" type="text" [(ngModel)]="condutor.enderco.uf" pInputText>
+                </div>
+                <div class="p-field p-col-12 p-md-3">
+                    <button pButton class="p-ripple p-button p-component" icon="pi pi-save" (click)="save()" type="button"
+                        label="Salvar"></button>
+                </div>
+
+            </div>
+        
+    </p-dialog>
+
+    <p-dialog header="Ordens de Trafego" [(visible)]="displayOrdTrafegoDialog" [style]="{width: '60%'}">
+
+        <div class="p-fluid p-formgrid p-grid">
+            <p-table [value]="ordtrafegos">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Id</th>
+                        <th>Origem</th>
+                        <th>Destino</th>
+                        <th>Dt. Viagem</th>
+                        <th>Distancia</th>
+                        <th>status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-ordtrafego>
+                    <tr>
+                        <td>{{ordtrafego.id}}</td>
+                        <td>{{ordtrafego.origem}}</td>
+                        <td>{{ordtrafego.destino}}</td>
+                        <td>{{ordtrafego.dt_viagem}}</td>
+                        <td>{{ordtrafego.distancia}}</td>
+                        <td>{{ordtrafego.status}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </p-dialog>
+    <p-dialog header="Endereço" [(visible)]="displayEndDialog" [style]="{width: '60%'}">
+
+        <div class="p-fluid p-formgrid p-grid">
+            <p-table [value]="enderecos">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Endereço</th>
+                        <th>Bairro</th>
+                        <th>CEP</th>
+                        <th>Estado</th>
+                        <th>UF</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-endereco>
+                    <tr>
+                        <td>{{endereco.end}}</td>
+                        <td>{{endereco.bairro}}</td>
+                        <td>{{endereco.cep}}</td>
+                        <td>{{endereco.estado}}</td>
+                        <td>{{endereco.uf}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </p-dialog>
+    <p-dialog header="CNH" [(visible)]="displayCnhDialog" [style]="{width: '60%'}">
+
+        <div class="p-fluid p-formgrid p-grid">
+            <p-table [value]="cnhs">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Numero CNH</th>
+                        <th>Categoria</th>
+                        <th>Validade</th>
+                        <th>Observação</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-cnh>
+                    <tr>
+                        <td>{{cnh.numCnh}}</td>
+                        <td>{{cnh.categoria}}</td>
+                        <td>{{cnh.validade}}</td>
+                        <td>{{cnh.obs}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </p-dialog>
+</div>
