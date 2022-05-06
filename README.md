@@ -1,5 +1,9 @@
 # GestaoFrotasApp
 
+Projeto acadêmico Client-APIRest Sistema de Gestão de Frotas, utilizando as seguintes tecnologias: 
+- Angula;
+- PrimeNG.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.0.
 
 ## Development server
